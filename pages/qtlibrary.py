@@ -7,7 +7,8 @@
 '''
 
 from PyQt4.QtGui import QWizardPage,QHBoxLayout,QVBoxLayout,QLabel,QLineEdit,QPushButton,QCheckBox,QGridLayout
-import app_datas
+from PyQt4.QtCore import Qt
+import app
 
 class QtLibraryPage(QWizardPage):
 
@@ -18,27 +19,41 @@ class QtLibraryPage(QWizardPage):
         rootLayout = QVBoxLayout()
         rootLayout.setContentsMargins(20, 30, 20, 30)
 
-        gLayout = QGridLayout()
+        self.gLayout = QGridLayout()
         self.checkboxs = []
+
+        rootLayout.addLayout(self.gLayout)
+        self.setLayout(rootLayout)
+
+    def initializePage(self):
+        exsits = []
+        for qtlib in app.g_configurations.qt_libs:
+            exsits.append(qtlib['name'])
+
         index = 0
-        for moudel in app_datas.g_qt_library:
+        for moudel in app.g_qt_library:
             checkBox = QCheckBox(moudel['name'])
-            if moudel['refer']:
-                checkBox.setCheckState(2)
+            if app.g_configurations.initialized:
+                if moudel['name'] in exsits:
+                    checkBox.setCheckState(Qt.Checked)
+                else:
+                    checkBox.setCheckState(Qt.Unchecked)
+            else:
+                if moudel['refer']:
+                    checkBox.setCheckState(Qt.Checked)
+                else:
+                    checkBox.setCheckState(Qt.Unchecked)
             row = index / 3
             offset = index % 3
-            gLayout.addWidget(checkBox, row, offset)
+            self.gLayout.addWidget(checkBox, row, offset)
             self.checkboxs.append(checkBox)
             index += 1
-
-        rootLayout.addLayout(gLayout)
-        self.setLayout(rootLayout)
 
     def validatePage(self):
         librarys = []
         for i in range(len(self.checkboxs)):
             if self.checkboxs[i].checkState() == 2:
-                librarys.append(app_datas.g_qt_library[i])
+                librarys.append(app.g_qt_library[i])
 
-        app_datas.g_configurations['qt_library'] = librarys
+        app.g_configurations.qt_libs = librarys
         return True

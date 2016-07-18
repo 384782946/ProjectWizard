@@ -5,52 +5,185 @@
   [
     {
       "source":"project.pro",
-      "target":"{{ config['project_lname'] }}.pro"
+      "target":"{{ config.project_name }}.pro"
     },
     {
-      "source":"project.h",
-      "target":"{{ config['project_lname'] }}.h"
+      "source":"src/project.h",
+      "target":"src/{{ config.project_name }}.h"
     },
     {
-      "source":"project.cpp",
-      "target":"{{ config['project_lname'] }}.cpp"
+      "source":"src/project.cpp",
+      "target":"src/{{ config.project_name }}.cpp"
     },
     {
-      "source":"project_global.h",
-      "target":"{{ config['project_lname'] }}_global.h"
+      "source":"src/project_global.h",
+      "target":"src/{{ config.project_name }}Def.h"
+    },
+    {
+      "source":"forms/project.ui",
+      "target":"forms/{{ config.project_name }}.ui"
+    },
+    {
+      "source":"scripts/clean.bat",
+      "target":"scripts/clean.bat"
+    },
+     {
+      "source":"scripts/cr-vcproj.bat",
+      "target":"scripts/cr-vcproj.bat"
+    },
+     {
+      "source":"scripts/make.bat",
+      "target":"scripts/make.bat"
+    },
+     {
+      "source":"scripts/VS02008-vsvars32.bat",
+      "target":"scripts/VS02008-vsvars32.bat"
     }
   ],
   "moudels":
   [
     {
-      "name":"Event",
-      "lib_name":"libDDS",
-      "include_path":"dds",
-      "refer":false
+      "name":"公共工具库",
+      "description":"提供通用的工具",
+      "buildin":true,
+      "libs":
+              [
+                {
+                   "prefix":"",
+                    "name":"AllOneFoundation"
+                }
+              ]
     },
     {
-      "name":"DDS",
-      "lib_name":"libDDS",
-      "include_path":"dds",
-      "refer":false
+      "name":"事件通知",
+      "description":"事件通知的介绍",
+      "buildin":true,
+      "libs":
+              [
+                {
+                   "prefix":"",
+                    "name":"EventNotification"
+                }
+              ]
     },
     {
-      "name":"Database",
-      "lib_name":"libDDS",
-      "include_path":"dds",
-      "refer":false
+      "name":"关系数据库",
+      "description":"提供通用的工具",
+      "buildin":false,
+      "libs":
+              [
+                {
+                   "prefix":"",
+                    "name":"DBManagerComp"
+                },
+                {
+                   "prefix":"",
+                    "name":"DBCommon"
+                }
+              ]
     },
     {
-      "name":"UDP",
-      "lib_name":"UDPServer",
-      "include_path":"",
-      "refer":false
+      "name":"UDP通信",
+      "description":"UPD通信组件",
+      "buildin":false,
+      "libs":
+              [
+                {
+                   "prefix":"",
+                    "name":"MsgConverter"
+                },
+                {
+                   "prefix":"",
+                    "name":"UDPCommunication"
+                }
+              ]
     },
     {
-      "name":"TCP",
-      "lib_name":"TCPServer",
-      "include_path":"",
-      "refer":false
+      "name":"DDS通信",
+      "description":"DDS通信的介绍",
+      "buildin":false,
+      "libs":
+              [
+                {
+                   "prefix":"",
+                    "name":"DDSMsgHandle"
+                }
+              ]
+    },
+    {
+      "name":"实时数据库",
+      "description":"实时数据库的介绍",
+      "buildin":false,
+      "libs":
+              [
+                {
+                   "prefix":"",
+                    "name":"RTDBDriver"
+                }
+              ]
+    }
+  ],
+  "interfaces":
+  [
+    {
+      "name":"initialize",
+      "description":"初始化对象",
+      "default":3
+    },
+    {
+      "name":"initData",
+      "description":"初始化数据",
+      "default":3
+    },
+    {
+      "name":"changeShowMode",
+      "description":"改变显示模式，只有window组件可继承该接口",
+      "default":0
+    },
+    {
+      "name":"onListenerCompStatusUpdate",
+      "description":"被监听的功能组件状态改变",
+      "default":1
+    },
+    {
+      "name":"showComp",
+      "description":"显示功能组件",
+      "default":1
+    },
+    {
+      "name":"hideComp",
+      "description":"隐藏功能组件",
+      "default":1
+    },
+    {
+      "name":"suspendComp",
+      "description":"挂起功能组件",
+      "default":1
+    },
+    {
+      "name":"resumeComp",
+      "description":"恢复功能组件",
+      "default":1
+    },
+    {
+      "name":"terminateComp",
+      "description":"卸载功能组件",
+      "default":1
+    },
+    {
+      "name":"run",
+      "description":"对象执行功能",
+      "default":1
+    },
+    {
+      "name":"saveCompMemento",
+      "description":"保存组件备忘录数据",
+      "default":1
+    },
+    {
+      "name":"resumeCompMemento",
+      "description":"从备忘录中恢复数据",
+      "default":1
     }
   ]
 }

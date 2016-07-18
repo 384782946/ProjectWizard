@@ -1,11 +1,20 @@
-# coding:utf-8
+ # coding:utf-8
 
 from jinja2 import Template
+from configuration import Configuration
+
+def render(source, **kwargs):
+    template = Template(source.decode('utf-8'))
+    return template.render(kwargs)
+
+def QString2str(qstring):
+    return str(qstring.toUtf8())
 
 g_pwd = '' #当前程序目录
 g_templates = [] #当前所有可用模板列表
-g_configurations = {} #用来渲染的配置数据
-g_config = {} #来自文件的配置
+g_projects = [] #所有工程
+
+g_configurations = Configuration() #用来渲染的配置数据
 
 g_qt_library = [
     {
@@ -94,7 +103,3 @@ g_qt_library = [
         "refer":False
     }
 ]
-
-def render(source, **kwargs):
-    template = Template(source.decode('utf-8'))
-    return template.render(kwargs)
