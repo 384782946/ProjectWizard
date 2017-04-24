@@ -11,6 +11,7 @@ import copy
 import json
 import app
 import wizard
+import configuration
 
 from PyQt4 import QtCore,QtGui,Qt
 from configuration import Configuration
@@ -39,8 +40,8 @@ class mainwindow(QtGui.QMainWindow):
 
         lGroup = QGroupBox('项目列表')
         lGroup.setLayout(lLayout)
-        cwHLayout.addWidget(lGroup,3)
-        cwHLayout.addLayout(rLayout,7)
+        cwHLayout.addWidget(lGroup,2)
+        cwHLayout.addLayout(rLayout,8)
 
         tLayout = QVBoxLayout()
         bLayout = QVBoxLayout()
@@ -63,7 +64,10 @@ class mainwindow(QtGui.QMainWindow):
         thLayout.addStretch(0)
         modify_btn = QPushButton('修改')
         modify_btn.clicked.connect(self.on_modify)
+        del_btn = QPushButton('删除')
+        del_btn.clicked.connect(self.on_del)
         thLayout.addWidget(modify_btn)
+        thLayout.addWidget(del_btn)
 
         tLayout.addWidget(self.tw_config)
         tLayout.addLayout(thLayout)
@@ -126,21 +130,45 @@ class mainwindow(QtGui.QMainWindow):
         if dlg.exec_():
             app.g_configurations.initialized = True
             app.g_projects.append(app.g_configurations)
-            self.lw.addItem(app.g_configurations.project_name)
+            content = app.g_configurations.toJson()
+            path = QFileDialog.getSaveFileName(self,"选择模板保存的路径",
+                                               app.g_pwd + os.sep + "configurations" + os.sep + app.g_configurations.project_name + ".json"
+                                               ,"Config (*.json)")
+            if not path.isEmpty():
+                path = app.QString2str(path)
+                with open(path,'w+') as f:
+                    f.write(content)
+                self.lw.addItem(app.g_configurations.project_name)
 
     def getProjectLocation(self):
         '''获取项目路径'''
         path = QFileDialog.getExistingDirectory()
+        path = QDir.fromNativeSeparators(path)
         self.et_project_location.setText(path)
 
     def on_open(self):
         '''打开现有配置'''
-        fileName = QFileDialog.getOpenFileName()
+        fileName = QFileDialog.getOpenFileName(self,"选择现有模板",app.g_pwd + os.sep + "configurations","Config (*.json)")
+        if fileName.isEmpty():
+            return
         with open(app.QString2str(fileName), 'r') as f:
             content = f.read()
-        config = json.loads(content)
+
+        config = Configuration()
+        config.fromJson(content)
         app.g_projects.append(config)
-        self.lw.addItem(config['project_name'])
+        self.lw.addItem(config.project_name)
+
+    def on_del(self):
+        index = self.lw.currentRow()
+        if index < app.g_projects:
+            self.bGroup.setEnabled(False)
+            self.lw.takeItem(index)
+            config = app.g_projects[index]
+            app.g_projects.remove(config)
+            self.tw_config.clear()
+        return
+
 
     def on_select(self):
         '''选取配置'''
@@ -179,11 +207,11 @@ class mainwindow(QtGui.QMainWindow):
         r1c00 = QTreeWidgetItem(sr1c00)
         root1.addChild(r1c00)
 
-        sr1c0 = QStringList()
-        sr1c0.append("项目位置")
-        sr1c0.append(cf.project_location)
-        r1c0 = QTreeWidgetItem(sr1c0)
-        root1.addChild(r1c0)
+        # sr1c0 = QStringList()
+        # sr1c0.append("项目位置")
+        # sr1c0.append(cf.project_location)
+        # r1c0 = QTreeWidgetItem(sr1c0)
+        # root1.addChild(r1c0)
 
         sr1c1 = QStringList()
         sr1c1.append("组件类型")
@@ -199,13 +227,19 @@ class mainwindow(QtGui.QMainWindow):
 
         sr1c3 = QStringList()
         sr1c3.append("平台类型")
-        sr1c3.append(cf.platform_type)
+        tmp_pt = ""
+        if cf.platform_type & configuration.PT_WIN32:
+            tmp_pt += "win32;"
+        if cf.platform_type & configuration.PT_LINUX:
+            tmp_pt += "linux"
+
+        sr1c3.append(tmp_pt)
         r1c3 = QTreeWidgetItem(sr1c3)
         root1.addChild(r1c3)
 
         sr1c4 = QStringList()
         sr1c4.append("平台级别")
-        sr1c4.append(cf.platform_level)
+        sr1c4.append(cf.platform_version)
         r1c4 = QTreeWidgetItem(sr1c4)
         root1.addChild(r1c4)
 
@@ -233,6 +267,7 @@ class mainwindow(QtGui.QMainWindow):
             r4 = QTreeWidgetItem(sr4)
             root4.addChild(r4)
         self.tw_config.expandAll()
+        self.tw_config.header().resizeSection(0,300)
 
     def on_modify(self):
         '''修改配置'''

@@ -8,7 +8,7 @@ def render(source, **kwargs):
     return template.render(kwargs)
 
 def QString2str(qstring):
-    return str(qstring.toUtf8())
+    return str(qstring.toUtf8()).decode('utf-8')
 
 g_pwd = '' #当前程序目录
 g_templates = [] #当前所有可用模板列表

@@ -8,16 +8,16 @@
       "target":"{{ config.project_name }}.pro"
     },
     {
-      "source":"src/project.h",
-      "target":"src/{{ config.project_name }}.h"
+      "source":"include/project.h",
+      "target":"include/{{ config.project_name }}.h"
     },
     {
       "source":"src/project.cpp",
       "target":"src/{{ config.project_name }}.cpp"
     },
     {
-      "source":"src/project_global.h",
-      "target":"src/{{ config.project_name }}Def.h"
+      "source":"include/project_global.h",
+      "target":"include/{{ config.project_name }}Def.h"
     },
     {
       "source":"forms/project.ui",
@@ -183,6 +183,11 @@
     {
       "name":"resumeCompMemento",
       "description":"从备忘录中恢复数据",
+      "default":1
+    },
+    {
+      "name":"workModelChange",
+      "description":"工作模式改变通知",
       "default":1
     }
   ]

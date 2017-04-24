@@ -6,23 +6,24 @@
 #include <QWidget>
 #include "ui_{{ config.project_name }}.h"
 #include "ComponentBase/ComponentWin.h"
+using namespace Allone;
 
 extern "C" {{ config.project_name.upper() }}_EXPORT CComponent* CreateComp(const std::string& CompName);
 
 class {{ config.project_name.upper() }}_EXPORT {{ config.project_name }}:public ComponentWin,public QWidget
 {
-
-{% elif config.component_type == "server" %}
+{% else %}
 #include "ComponentBase/Component.h"
+using namespace Allone;
 
 extern "C" {{ config.project_name.upper() }}_EXPORT CComponent* CreateComp(const std::string& CompName);
 
-class {{ config.project_name.upper() }}_EXPORT {{ config.project_name }}:public Component
+class {{ config.project_name.upper() }}_EXPORT {{ config.project_name }}:public CComponent
 {
-
 {% endif %}
-    Q_OBJECT
+    //Q_OBJECT
 public:
+
     /*
 	 *\fn		CShowVResultWin(const std::string& sCompID)
 	 *\brief	Constructor.
@@ -59,13 +60,14 @@ public:
 	virtual void initialize(const CompConfigInfo& compCfgInfo);
 {% endif %} {% if config.interfaces["onListenerCompStatusUpdate"] %}
 	/*
-	 *\fn		virtual void onListenerCompStatusUpdate(COMPSTATUS_TYPE event) = 0
+	 *\fn		virtual void onListenerCompStatusUpdate(const std::string sWho, COMPSTATUS_TYPE eEvent) = 0
 	 *\brief	Executes the listener comp status update action. 被监听的功能组件状态改变.
 	 *\author	Yinjh
 	 *\date		2016-2-29
-	 *\param	event	The event. 被监听的功能组件状态.
+	 *\param	sWho	The who.
+	 *\param	eEvent	The event. 被监听的功能组件状态.
 	 */
-	virtual void onListenerCompStatusUpdate(COMPSTATUS_TYPE event);
+	virtual void onListenerCompStatusUpdate(const std::string sWho, COMPSTATUS_TYPE eEvent);
 {% endif %} {% if config.interfaces["showComp"] %}
 	/*
 	*\fn		virtual bool showComp()
@@ -136,6 +138,15 @@ public:
 	*\date		2016-3-1
 	*/
 	virtual void resumeCompMemento();
+{% endif %} {% if config.interfaces["workModelChange"] %}
+/*
+	 *\fn		virtual void workModelChange(EWorkSituation iWorkMode) = 0
+	 *\brief	Work model change.
+	 *\author	Yinjh
+	 *\date		2016-4-13
+	 *\param	iWorkMode	The work mode.
+	 */
+	virtual void workModelChange(EWorkSituation iWorkMode);
 {% endif %}
 protected:
 {% if config.interfaces["initData"] %}

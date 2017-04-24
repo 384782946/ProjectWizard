@@ -35,7 +35,7 @@ void {{ config.project_name }}::initialize(const CompConfigInfo& compCfgInfo)
 {
 }
 {% endif %} {% if config.interfaces["onListenerCompStatusUpdate"] %}
-void {{ config.project_name }}::onListenerCompStatusUpdate(COMPSTATUS_TYPE event)
+void {{ config.project_name }}::onListenerCompStatusUpdate(const std::string sWho, COMPSTATUS_TYPE eEvent)
 {
 }
 {% endif %} {% if config.interfaces["showComp"] %}
@@ -56,7 +56,7 @@ bool {{ config.project_name }}::suspendComp()
 {% endif %} {% if config.interfaces["resumeComp"] %}
 bool {{ config.project_name }}::resumeComp()
 {
-    return true
+    return true;
 }
 {% endif %} {% if config.interfaces["terminateComp"] %}
 bool {{ config.project_name }}::terminateComp()
@@ -78,6 +78,10 @@ void {{ config.project_name }}::resumeCompMemento()
 }
 {% endif %} {% if config.interfaces["initData"] %}
 void {{ config.project_name }}::initData(const CInitParam& params)
+{
+}
+{% endif %} {% if config.interfaces["workModelChange"] %}
+void {{ config.project_name }}::workModelChange(EWorkSituation iWorkMode)
 {
 }
 {% endif %}

@@ -6,11 +6,11 @@
 概述：工程信息
 '''
 
-from PyQt4.QtGui import QWizard,QWizardPage,QHBoxLayout,QVBoxLayout,QLabel,QLineEdit,QPushButton,QFileDialog,QComboBox
+from PyQt4.QtGui import QWizard,QWizardPage,QHBoxLayout,QVBoxLayout,QLabel,QLineEdit,QCheckBox,QComboBox
 from PyQt4.QtCore import QString,QStringList,SIGNAL
 import app
 import os
-import json
+import configuration
 
 class BaseInfoPage(QWizardPage):
 
@@ -59,15 +59,24 @@ class BaseInfoPage(QWizardPage):
 
         row4 = QHBoxLayout()
         lable4 = QLabel('平台类型：')
-        self.cb_platform_type = QComboBox()
-        items_platform = QStringList()
-        items_platform.append('Win')
-        items_platform.append('Linux(32位)')
-        items_platform.append('Linux(64位)')
-        self.cb_platform_type.addItems(items_platform)
+        checkboxLayout = QHBoxLayout()
+        self.cb_pt_win = QCheckBox('Win')
+        self.cb_pt_linux = QCheckBox('Linux')
+        checkboxLayout.addWidget(self.cb_pt_win)
+        checkboxLayout.addWidget(self.cb_pt_linux)
         row4.addWidget(lable4)
-        row4.addWidget(self.cb_platform_type)
+        row4.addLayout(checkboxLayout)
         row4.addStretch(0)
+
+        row6 = QHBoxLayout()
+        self.cb_pt_version = QComboBox()
+        items_pt_version = QStringList()
+        items_pt_version.append('x86')
+        items_pt_version.append('x64')
+        self.cb_pt_version.addItems(items_pt_version)
+        row6.addWidget(QLabel('平台级别：'))
+        row6.addWidget(self.cb_pt_version)
+        row6.addStretch(0)
 
         row5 = QHBoxLayout()
         lable5 = QLabel('组件类型：')
@@ -83,21 +92,24 @@ class BaseInfoPage(QWizardPage):
         rootLayout.addLayout(row1)
         #rootLayout.addLayout(row2)
         rootLayout.addLayout(row3)
-        rootLayout.addLayout(row4)
         rootLayout.addLayout(row5)
+        rootLayout.addLayout(row6)
+        #rootLayout.addLayout(row4)
+
         self.setLayout(rootLayout)
 
     def initializePage(self):
         super(BaseInfoPage, self).initializePage()
         if app.g_configurations.initialized:
             self.et_project_name.setText(app.g_configurations.project_name)
-            if app.g_configurations.platform_type == "win32":
-                self.cb_platform_type.setCurrentIndex(0)
-            elif app.g_configurations.platform_type == "linux":
-                if app.g_configurations.platform_level == "x86_32":
-                    self.cb_platform_type.setCurrentIndex(1)
-                else:
-                    self.cb_platform_type.setCurrentIndex(2)
+
+            self.cb_pt_win.setChecked(app.g_configurations.platform_type & configuration.PT_WIN32)
+            self.cb_pt_linux.setChecked(app.g_configurations.platform_type & configuration.PT_LINUX)
+
+            if app.g_configurations.platform_version == "x86_64":
+                self.cb_pt_version.setCurrentIndex(1)
+            else:
+                self.cb_pt_version.setCurrentIndex(0)
 
             index = self.cb_wizard_type.findText(app.g_configurations.template_source)
             self.cb_wizard_type.setCurrentIndex(index)
@@ -131,22 +143,22 @@ class BaseInfoPage(QWizardPage):
         project_name = self.et_project_name.text().trimmed()
         #project_dir = self.et_project_location.text().trimmed()
         wizard_template = self.cb_wizard_type.currentText()
-        platform_type = self.cb_platform_type.currentIndex()
         component_type = self.cb_component_type.currentIndex()
+        platform_type = 0
+        if self.cb_pt_win.isChecked():
+            platform_type |= configuration.PT_WIN32
+        if self.cb_pt_linux.isChecked():
+            platform_type |= configuration.PT_LINUX
+
+        if self.cb_pt_version.currentIndex() == 1:
+            app.g_configurations.platform_version = "x86_64"
+        else:
+            app.g_configurations.platform_version = "x86_32"
 
         app.g_configurations.project_name = app.QString2str(project_name)
         #app.g_configurations.project_location = app.QString2str(project_dir)
         app.g_configurations.template_source = app.QString2str(wizard_template)
-
-        if platform_type == 1:
-            app.g_configurations.platform_type = "linux"
-            app.g_configurations.platform_level = "x86_32"
-        elif platform_type == 2:
-            app.g_configurations.platform_type = "linux"
-            app.g_configurations.platform_level = "x86_64"
-        else:
-            app.g_configurations.platform_type = "win32"
-            app.g_configurations.platform_level = "x86_32"
+        app.g_configurations.platform_type = platform_type
 
         if component_type == 0:
             app.g_configurations.component_type = "server"
